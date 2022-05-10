@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "core/base/common.h"
+#include "dom/root_node.h"
 #include "jni/jni_env.h"
 
 #include "dom/taitank_layout_node.h"
@@ -86,7 +87,8 @@ bool HippyRenderManager::Erase(const std::shared_ptr<HippyRenderManager>& render
   return HippyRenderManager::Erase(render_manager->id_);
 }
 
-void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
+void HippyRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
+                                          std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -147,10 +149,11 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   CallNativeMethod(buffer_pair, "createNode");
 }
 
-void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void HippyRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
+                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (const auto& n : nodes) {
     if (n->GetTagName() == "Text") {
-      MarkTextDirty(n->GetId());
+      MarkTextDirty(root_node, n->GetId());
     }
   }
 
@@ -194,7 +197,8 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   CallNativeMethod(buffer_pair, "updateNode");
 }
 
-void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void HippyRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
+                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -228,7 +232,8 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
 }
 
-void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+void HippyRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
+                                      const std::vector<std::shared_ptr<DomNode>>& nodes) {
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -257,7 +262,8 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
   CallNativeMethod(buffer_pair, "updateLayout");
 }
 
-void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
+void HippyRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                        std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -285,24 +291,27 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   j_env->DeleteLocalRef(j_class);
 }
 
-void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); }
+void HippyRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) { CallNativeMethod("endBatch"); }
 
-void HippyRenderManager::BeforeLayout(){}
+void HippyRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {}
 
-void HippyRenderManager::AfterLayout() {
+void HippyRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
   // 更新布局信息前处理事件监听
   HandleListenerOps(event_listener_ops_, "updateEventListener");
 }
 
-void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void HippyRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
+                                          std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
 }
 
-void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void HippyRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+                                             std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
 }
 
-void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
+void HippyRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
+                                      std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       uint32_t cb_id) {
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
@@ -480,11 +489,11 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
   CallNativeMethod(buffer_pair, method_name);
 }
 
-void HippyRenderManager::MarkTextDirty(uint32_t node_id) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    auto node = dom_manager->GetNode(node_id);
+void HippyRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id) {
+  auto root_node = weak_root_node.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
+    auto node = root_node->GetNode(node_id);
     TDF_BASE_DCHECK(node);
     if (node) {
       auto diff_style = node->GetDiffStyle();

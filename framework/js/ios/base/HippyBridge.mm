@@ -41,6 +41,7 @@
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
 #import "HippyAssert.h"
+#import "scope.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
@@ -389,23 +390,28 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _nativeSetUpBlock = ^(){
         HippyBridge *strongSelf = weakBridge;
         if (strongSelf) {
-            strongSelf->_domManager = std::make_shared<hippy::DomManager>([tag intValue]);
-            int ids = strongSelf->_domManager->GetRootId();
-            auto rootNode = strongSelf->_domManager->GetNode(ids);
-            rootNode->GetLayoutNode()->SetScaleFactor(scale);
+            uint32_t rootTag = [tag unsignedIntValue];
+            strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
+            strongSelf->_rootNode->SetDelegateTaskRunner(strongSelf.batchedBridge.javaScriptExecutor.pScope->GetTaskRunner());
+            
+            strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
+            strongSelf->_domManager = std::make_shared<hippy::DomManager>(rootTag);
+            strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
             strongSelf->_domManager->StartTaskRunner();
-            strongSelf->_domManager->SetRootSize(size.width, size.height);
+            strongSelf->_domManager->SetRootSize(strongSelf->_rootNode, size.width, size.height);
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
-            strongSelf->_renderManager->RegisterRootView(weakView);
+            strongSelf->_renderManager->RegisterRootView(weakView, strongSelf->_rootNode);
             strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
+            
+            strongSelf->_rootNode->SetRenderManager(strongSelf->_renderManager);
             
             strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
             
             [strongSelf setUpDomManager:strongSelf->_domManager];
             
-            strongSelf->_animationManager = std::make_shared<hippy::AnimationManager>(strongSelf->_domManager);
+            strongSelf->_animationManager = std::make_shared<hippy::AnimationManager>(strongSelf->_domManager, strongSelf->_rootNode);
             strongSelf->_domManager->AddInterceptor(strongSelf->_animationManager);
             
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();

@@ -43,8 +43,9 @@ bool AnimationManager::Erase(int32_t id) {
   return true;
 }
 
-AnimationManager::AnimationManager(std::shared_ptr<DomManager> dom_manager) {
+AnimationManager::AnimationManager(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<RootNode> root_node) {
   dom_manager_ = dom_manager;
+  root_node_ = root_node;
   id_ = global_ani_manager_key.fetch_add(1);
 }
 
@@ -192,7 +193,7 @@ void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::sh
               std::map<uint32_t, std::string> props = ani_node->second;
               if (props.find(ani_id) != props.end()) {
                 auto prop = props.find(ani_id);
-                auto dom_node = dom_manager->GetNode(node_id);
+                auto dom_node = dom_manager->GetNode(self->root_node_, node_id);
                 if (dom_node == nullptr) {
                   continue;
                 }
@@ -207,8 +208,8 @@ void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::sh
           }
         }
       }
-      dom_manager->UpdateAnimation(std::move(update_nodes));
-      dom_manager->EndBatch();
+      dom_manager->UpdateAnimation(self->root_node_, std::move(update_nodes));
+      dom_manager->EndBatch(self->root_node_);
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
   }

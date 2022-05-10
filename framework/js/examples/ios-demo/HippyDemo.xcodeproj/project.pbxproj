@@ -224,6 +224,7 @@
 		F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA628117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.m */; };
 		F4C1DAAE28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA728117C1800CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m */; };
 		F4C1DAAF28117C1900CED4C4 /* NSNumber+HippyNumberDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA828117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.m */; };
+		F4C36F37282CAAB400E8BAC1 /* HippyComponentMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4C36F36282CAAB400E8BAC1 /* HippyComponentMap.mm */; };
 		F4CEDF9B27D858C700583C9E /* HippyImageDataLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9427D858C700583C9E /* HippyImageDataLoader.m */; };
 		F4CEDF9C27D858C700583C9E /* HippyDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9627D858C700583C9E /* HippyDownloadTask.m */; };
 		F4CEDF9D27D858C700583C9E /* HippyDefaultImageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9927D858C700583C9E /* HippyDefaultImageProvider.m */; };
@@ -714,6 +715,8 @@
 		F4C1DAAA28117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+HippyArrayDeepCopy.h"; sourceTree = "<group>"; };
 		F4C1DAAB28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+HippyDictionaryDeepCopy.h"; sourceTree = "<group>"; };
 		F4C1DAAC28117C1900CED4C4 /* HippyDeepCopyProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDeepCopyProtocol.h; sourceTree = "<group>"; };
+		F4C36F35282CAAB400E8BAC1 /* HippyComponentMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyComponentMap.h; sourceTree = "<group>"; };
+		F4C36F36282CAAB400E8BAC1 /* HippyComponentMap.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyComponentMap.mm; sourceTree = "<group>"; };
 		F4CEDF9327D858C700583C9E /* HippyDefaultImageProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefaultImageProvider.h; sourceTree = "<group>"; };
 		F4CEDF9427D858C700583C9E /* HippyImageDataLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyImageDataLoader.m; sourceTree = "<group>"; };
 		F4CEDF9527D858C700583C9E /* HippyImageDataLoaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoaderProtocol.h; sourceTree = "<group>"; };
@@ -1822,6 +1825,8 @@
 				F4BD045927D5E39F00339A2C /* HippyFrameworkProxy.h */,
 				F4079542281ABA4100DD084A /* RenderVsyncManager.h */,
 				F4079543281ABA4100DD084A /* RenderVsyncManager.mm */,
+				F4C36F35282CAAB400E8BAC1 /* HippyComponentMap.h */,
+				F4C36F36282CAAB400E8BAC1 /* HippyComponentMap.mm */,
 			);
 			name = renderer;
 			path = ../../../../renderer/native/ios/renderer;
@@ -2038,6 +2043,7 @@
 				F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */,
 				F468DE662812A95200319196 /* HippyImageLoaderModule.mm in Sources */,
 				D84AB9C9273A618B00987D03 /* callback_info.cc in Sources */,
+				F4C36F37282CAAB400E8BAC1 /* HippyComponentMap.mm in Sources */,
 				D84AB9C6273A618B00987D03 /* thread.cc in Sources */,
 				F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */,
 				F45D265A28067B6900CAB185 /* HippyViewPager.mm in Sources */,
@@ -2315,6 +2321,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -2345,6 +2352,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

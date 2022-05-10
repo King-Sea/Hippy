@@ -105,47 +105,47 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
         HippyLogWarn(@"PageModel, screen cast, manager is nil");
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
-        if (!rootView) {
-            HippyLogWarn(@"PageModel, screen cast, root view is nil");
-            completion(@{});
-        }
-        CGFloat viewWidth = rootView.frame.size.width;
-        CGFloat viewHeight = rootView.frame.size.height;
-        CGFloat scale = 1.f;
-        if (viewWidth != 0 && viewHeight != 0) {
-            CGFloat scaleX = self.maxSize.width / viewWidth;
-            CGFloat scaleY = self.maxSize.height / viewHeight;
-            scale = MIN(scaleX, scaleY);
-        }
-        // root view snapshot
-        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, YES, scale);
-        [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
-        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        if (resultImage) {
-            NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-            NSString *base64String = [self imageToBase64String:resultImage format:self.format];
-            NSMutableDictionary *meta = [NSMutableDictionary dictionary];
-            meta[HippyPageKeyOffsetTop] = @(0);
-            meta[HippyPageKeyPageScaleFactor] = @(1);
-            meta[HippyPageKeyDeviceWidth] = @(viewWidth);
-            meta[HippyPageKeyDeviceHeight] = @(viewHeight);
-            meta[HippyPageKeyScrollOffsetX] = @(0);
-            meta[HippyPageKeyScrollOffsetY] = @(0);
-            meta[HippyPageKeyTimestamp] = @(timestamp);
-            NSMutableDictionary *resultJSON = [NSMutableDictionary dictionary];
-            resultJSON[HippyPageKeyData] = base64String != nil ? base64String : @"";
-            resultJSON[HippyPageKeyMetaData] = meta;
-            resultJSON[HippyPageKeySessionId] = @(timestamp);
-            self.lastTimestamp = timestamp;
-            completion(resultJSON);
-        }
-        else {
-            completion(@{});
-        }
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
+//        if (!rootView) {
+//            HippyLogWarn(@"PageModel, screen cast, root view is nil");
+//            completion(@{});
+//        }
+//        CGFloat viewWidth = rootView.frame.size.width;
+//        CGFloat viewHeight = rootView.frame.size.height;
+//        CGFloat scale = 1.f;
+//        if (viewWidth != 0 && viewHeight != 0) {
+//            CGFloat scaleX = self.maxSize.width / viewWidth;
+//            CGFloat scaleY = self.maxSize.height / viewHeight;
+//            scale = MIN(scaleX, scaleY);
+//        }
+//        // root view snapshot
+//        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, YES, scale);
+//        [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
+//        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+//        UIGraphicsEndImageContext();
+//        if (resultImage) {
+//            NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+//            NSString *base64String = [self imageToBase64String:resultImage format:self.format];
+//            NSMutableDictionary *meta = [NSMutableDictionary dictionary];
+//            meta[HippyPageKeyOffsetTop] = @(0);
+//            meta[HippyPageKeyPageScaleFactor] = @(1);
+//            meta[HippyPageKeyDeviceWidth] = @(viewWidth);
+//            meta[HippyPageKeyDeviceHeight] = @(viewHeight);
+//            meta[HippyPageKeyScrollOffsetX] = @(0);
+//            meta[HippyPageKeyScrollOffsetY] = @(0);
+//            meta[HippyPageKeyTimestamp] = @(timestamp);
+//            NSMutableDictionary *resultJSON = [NSMutableDictionary dictionary];
+//            resultJSON[HippyPageKeyData] = base64String != nil ? base64String : @"";
+//            resultJSON[HippyPageKeyMetaData] = meta;
+//            resultJSON[HippyPageKeySessionId] = @(timestamp);
+//            self.lastTimestamp = timestamp;
+//            completion(resultJSON);
+//        }
+//        else {
+//            completion(@{});
+//        }
+//    });
     return YES;
 }
 

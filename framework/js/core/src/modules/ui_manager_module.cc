@@ -54,7 +54,7 @@ void UIManagerModule::EndBatch(const CallbackInfo &info) {
   TDF_BASE_CHECK(context);
 
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  scope->GetDomManager().lock()->EndBatch();
+  scope->GetDomManager().lock()->EndBatch(scope->GetRootNode());
 }
 
 void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
@@ -120,5 +120,5 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
     };
   }
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  scope->GetDomManager().lock()->CallFunction(static_cast<uint32_t>(id), name, param_value, cb);
+  scope->GetDomManager().lock()->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
 }

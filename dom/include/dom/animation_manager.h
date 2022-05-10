@@ -12,7 +12,7 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
   using DomValue = tdf::base::DomValue;
 
  public:
-  AnimationManager(std::shared_ptr<DomManager> dom_manager);
+  AnimationManager(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<RootNode> root_node);
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
 
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
@@ -32,6 +32,7 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
 
  private:
   std::weak_ptr<DomManager> dom_manager_;
+  std::weak_ptr<RootNode> root_node_;
   /**
    * One animation can be used for multiple nodes,
    * the key of this map is animation id and the value is the set of domNodes.

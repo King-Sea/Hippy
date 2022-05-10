@@ -42,7 +42,6 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
     NSInteger _isDecendantOfLazilyShadowView;
-    std::weak_ptr<hippy::DomManager> _domManager;
     std::vector<std::string> _eventNames;
 }
 
@@ -243,14 +242,6 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     }
 }
 
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
-    _domManager = domManager;
-}
-
-- (std::weak_ptr<hippy::DomManager>)domManager {
-    return _domManager;
-}
-
 - (BOOL)isHidden {
     return _hidden || [_visibility isEqualToString:@"hidden"];
 }
@@ -357,16 +348,16 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                 if (weakSelf) {
                     HippyShadowView *strongSelf = weakSelf;
                     int32_t hippyTag = [[strongSelf hippyTag] intValue];
-                    auto node = domManager->GetNode(hippyTag);
+                    auto node = domManager->GetNode(strongSelf.rootNode, hippyTag);
                     if (node) {
                         node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
                         node->SetLayoutSize(frame.size.width, frame.size.height);
                         std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
                         node->DoLayout(changed_nodes);
-                        domManager->GetRenderManager()->UpdateLayout(std::move(changed_nodes));
+                        domManager->GetRenderManager()->UpdateLayout(strongSelf.rootNode, std::move(changed_nodes));
                         [strongSelf dirtyPropagation];
                         strongSelf.hasNewLayout = YES;
-                        domManager->EndBatch();
+                        domManager->EndBatch(strongSelf.rootNode);
                     }
                 }
             }

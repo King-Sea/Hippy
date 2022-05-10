@@ -75,18 +75,20 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /**
  * Gets the view associated with a hippyTag.
  */
-- (UIView *)viewForHippyTag:(NSNumber *)hippyTag;
+- (UIView *)viewForHippyTag:(NSNumber *)hippyTag
+                  onRootTag:(NSNumber *)rootTag;
 
 /**
  * Get the shadow view associated with a hippyTag
  */
-- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag;
+- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag
+                                 onRootTag:(NSNumber *)rootTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
-- (void)setFrame:(CGRect)frame forView:(UIView *)view;
+- (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
 
 /**
  * Schedule a block to be executed on the UI thread. Useful if you need to execute
@@ -100,15 +102,10 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block;
 
 /**
- * Get root view hippyTag
- */
-- (NSNumber *)rootHippyTag;
-
-/**
  * In some cases we might want to trigger layout from native side.
  * Hippy won't be aware of this, so we need to make sure it happens.
  */
-- (void)setNeedsLayout;
+- (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
 
 /**
  * After core animation did finish, we need to apply view's final status.
@@ -116,15 +113,18 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param params Animation params
  * @param block Completion block
  */
-- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+//TODO 这个方法可以删掉
+//- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 
-/**
- *  Manually update view props ,then flush block
- *
- *  @param hippyTag hippyTag for view
- *  @param props New properties for view
- */
-- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)props;
+///**
+// *  Manually update view props ,then flush block
+// *
+// *  @param hippyTag hippyTag for view
+// *  @param props New properties for view
+// */
+//- (void)updateViewWithHippyTag:(NSNumber *)hippyTag
+//                        onRoot:(NSNumber *)rootTag
+//                         props:(NSDictionary *)props;
 
 /**
  * Manully create views recursively from hippy tag
@@ -132,7 +132,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param hippyTag hippy tag corresponding to UIView
  * @return view created by hippy tag
  */
-- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag;
+- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag
+                                    onRootTag:(NSNumber *)rootTag;
 
 /**
  * Manully create views recursively from shadowView
@@ -151,19 +152,22 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  *  create views from dom nodes
  *  @param nodes A set of nodes for creating views
  */
-- (void)createRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
+- (void)createRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
+               onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  *  update views' properties from dom nodes
  *  @param nodes A set of nodes for updating views' properties
  */
-- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
+- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
+               onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  *  delete views from dom nodes
  *  @param nodes nodes to delete
  */
-- (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
+- (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes
+                  onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * move views from container to another container
@@ -172,7 +176,10 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param fromContainer Source view container from which views move
  * @param toContainer Target view container to which views move
  */
-- (void)renderMoveViews:(const std::vector<int32_t> &&)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
+- (void)renderMoveViews:(const std::vector<int32_t> &&)ids
+          fromContainer:(int32_t)fromContainer
+            toContainer:(int32_t)toContainer
+             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * update layout for view
@@ -180,12 +187,13 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param layoutInfos Vector for nodes layout infos
  */
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
-                           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos;
+                           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos
+               onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * Invoked after batched operations completed
  */
-- (void)batch;
+- (void)batchOnRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * call function of view
@@ -198,8 +206,12 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  *
  * @result Function return result
  */
-- (id)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
-                  params:(const tdf::base::DomValue &)params callback:(hippy::CallFunctionCallback)cb;
+- (id)dispatchFunction:(const std::string &)functionName
+              viewName:(const std::string &)viewName
+               viewTag:(int32_t)hippyTag
+            onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+                params:(const tdf::base::DomValue &)params
+              callback:(hippy::CallFunctionCallback)cb;
 
 /**
  * register event for specific view
@@ -207,7 +219,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param name event name
  * @param node_id id for node for the event
  */
-- (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id;
+- (void)addEventName:(const std::string &)name
+        forDomNodeId:(int32_t)node_id
+          onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * unregister event for specific view
@@ -215,24 +229,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param name event name
  * @param node_id node id for the event
  */
-- (void)removeEventName:(const std::string &)name forDomNodeId:(int32_t)node_id;
-
-/**
- * unregister event for specific view.
- *
- * @param name event name
- * @param node_id id of node for the event
- * @discussion this function will handle any event but gesture event, like touch, press, click, longclick, etc...
- */
-- (void)addRenderEvent:(const std::string &)name forDomNode:(int32_t)node_id;
-
-/**
- * unregister event for specific view
- *
- * @param name event name
- * @param node_id node id for the event
- */
-- (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
+- (void)removeEventName:(const std::string &)name
+           forDomNodeId:(int32_t)node_id
+             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
  * clear all memories

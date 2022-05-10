@@ -26,6 +26,7 @@
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
+#include "dom/root_node.h"
 #include "Hippy.h"
 #include "Flex.h"
 #import "HippyDefines.h"
@@ -143,13 +144,13 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 @property (nonatomic, assign) HippyCreationType creationType;
 
+@property (nonatomic, assign) std::weak_ptr<hippy::DomManager>domManager;
+
+@property (nonatomic, assign) std::weak_ptr<hippy::RootNode>rootNode;
 /**
  * set create type of itself and its all descendants to HippyCreationTypeInstantly
  */
 - (void)recusivelySetCreationTypeToInstant;
-
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager;
-- (std::weak_ptr<hippy::DomManager>)domManager;
 
 /**
  * reset layout frame to mark dirty and re-layout

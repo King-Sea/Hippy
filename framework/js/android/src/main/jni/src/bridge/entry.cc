@@ -137,13 +137,14 @@ void DoBind(JNIEnv* j_env,
   std::shared_ptr<HippyRenderManager>
       render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
 
+  auto scope = runtime->GetScope();
+
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(root_id);
+  auto node = dom_manager->GetNode(scope->GetRootNode(), root_id);
   auto layout_node = node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
 
-  auto scope = runtime->GetScope();
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
@@ -165,8 +166,9 @@ jint CreateAnimationManager(JNIEnv* j_env,
                             jint j_dom_id) {
   TDF_BASE_DCHECK(j_dom_id <= std::numeric_limits<std::int32_t>::max());
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(j_dom_id);
+  //todo(omegaxiao) : 创建animationManager传入rootNode(ios/android)
   std::shared_ptr<AnimationManager> ani_manager =
-      std::make_shared<AnimationManager>(dom_manager);
+      std::make_shared<AnimationManager>(dom_manager, nullptr);
   AnimationManager::Insert(ani_manager);
   dom_manager->AddInterceptor(ani_manager);
   return ani_manager->GetId();

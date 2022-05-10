@@ -138,12 +138,12 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
-        [self->_domModel domGetBoxModelJSONWithNode:node manager:manager completion:^(NSDictionary * rspObject) {
-            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
-        }];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
+//        [self->_domModel domGetBoxModelJSONWithNode:node manager:manager completion:^(NSDictionary * rspObject) {
+//            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+//        }];
+//    });
     return YES;
 }
 
