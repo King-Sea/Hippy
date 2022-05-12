@@ -389,9 +389,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _nativeSetUpBlock = ^(){
         HippyBridge *strongSelf = weakBridge;
         if (strongSelf) {
-            strongSelf->_domManager = std::make_shared<hippy::DomManager>([tag intValue]);
+            uint32_t rootTag = [tag unsignedIntValue];
+            strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
+            strongSelf->_domManager = std::make_shared<hippy::DomManager>(rootTag);
             strongSelf->_domManager->StartTaskRunner();
-            strongSelf->_domManager->SetRootSize(size.width, size.height);
+            strongSelf->_domManager->SetRootSize(strongSelf->_rootNode, size.width, size.height);
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);

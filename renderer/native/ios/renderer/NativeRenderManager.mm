@@ -34,30 +34,35 @@ using DomManager = hippy::DomManager;
 using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
+using RootNode = hippy::RootNode;
 
 NativeRenderManager::NativeRenderManager() {
     uiManager_ = [[HippyUIManager alloc] init];
 }
 
-void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
         [uiManager_ createRenderNodes:std::move(nodes)];
     }
 }
 
-void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
         [uiManager_ updateRenderNodes:std::move(nodes)];
     }
 }
 
-void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
         [uiManager_ deleteRenderNodesIds:std::move(nodes)];
     }
 }
 
-void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
+                                       const std::vector<std::shared_ptr<DomNode>>& nodes) {
     @autoreleasepool {
         using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult, bool, std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
@@ -79,7 +84,8 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
     }
 }
 
-void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
+void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                         std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {
     @autoreleasepool {
@@ -87,17 +93,19 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     }
 }
 
-void NativeRenderManager::EndBatch() {
+void NativeRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
     @autoreleasepool {
         [uiManager_ batch];
     }
 }
 
-void NativeRenderManager::BeforeLayout() {}
+void NativeRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {}
 
-void NativeRenderManager::AfterLayout() {}
+void NativeRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {}
 
-void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void NativeRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
+                                           std::weak_ptr<DomNode> dom_node,
+                                           const std::string& name) {
     @autoreleasepool {
         auto node = dom_node.lock();
         if (node) {
@@ -107,7 +115,9 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
     }
 };
 
-void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) {
+void NativeRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+                                              std::weak_ptr<DomNode> dom_node,
+                                              const std::string &name) {
     @autoreleasepool {
         auto node = dom_node.lock();
         if (node) {
@@ -117,9 +127,10 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, c
     }
 }
 
-void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
-                                    const DomArgument& param,
-                                    uint32_t cb) {
+void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
+                                       std::weak_ptr<DomNode> dom_node, const std::string &name,
+                                       const DomArgument& param,
+                                       uint32_t cb) {
     @autoreleasepool {
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
@@ -129,7 +140,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
                                  viewTag:node->GetId() params:dom_value
                                 callback:node->GetCallback(name, cb)];
         }
-        EndBatch();
+        EndBatch(root_node);
     }
 }
 
