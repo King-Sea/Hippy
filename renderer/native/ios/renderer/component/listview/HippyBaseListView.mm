@@ -242,7 +242,8 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerShadowView = [self.dataSource headerForSection:section];
     if (headerShadowView && [headerShadowView isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.renderContext viewFromRenderViewTag:headerShadowView.hippyTag];
+        UIView *headerView = [self.renderContext viewFromRenderViewTag:headerShadowView.hippyTag
+                                                             onRootTag:headerShadowView.rootTag];
         if (!headerView) {
             headerView = [self.renderContext createViewRecursivelyFromShadowView:headerShadowView];
         }
@@ -291,7 +292,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag onRootTag:cellShadowView.rootTag];
     if (!cellView) {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }

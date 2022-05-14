@@ -397,7 +397,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
-            strongSelf->_renderManager->RegisterRootView(weakView);
+            strongSelf->_renderManager->RegisterRootView(weakView, strongSelf->_rootNode);
             strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
             
             strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);

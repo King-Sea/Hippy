@@ -306,7 +306,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
     //TODO use reusable view here
-    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
     if (!view) {
         view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }

@@ -22,22 +22,35 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyComponent.h"
+#include "dom/root_node.h"
+#include <memory>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyComponentMap : NSObject
 
-- (void)addRootViewTag:(NSNumber *)tag;
+- (void)addRootComponent:(id<HippyComponent>)component
+                rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+                  forTag:(NSNumber *)tag;
 
-- (void)removeRootViewTag:(NSNumber *)tag;
+- (void)removeRootComponentWithTag:(NSNumber *)tag;
 
-- (void)addComponent:(__kindof id<HippyComponent>)component forRootViewTag:(NSNumber *)tag;
+- (BOOL)containRootComponentWithTag:(NSNumber *)tag;
 
-- (void)removeComponent:(__kindof id<HippyComponent>)component forRootViewTag:(NSNumber *)tag;
+- (__kindof id<HippyComponent>)rootComponentForTag:(NSNumber *)tag;
 
-- (NSArray<__kindof id<HippyComponent>> *)componentsForRootViewTag:(NSNumber *)tag;
+- (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;
 
-- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag onRootViewTag:(NSNumber *)tag;
+- (void)addComponent:(__kindof id<HippyComponent>)component
+          forRootTag:(NSNumber *)tag;
+
+- (void)removeComponent:(__kindof id<HippyComponent>)component
+             forRootTag:(NSNumber *)tag;
+
+- (NSDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
+
+- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
+                                     onRootTag:(NSNumber *)tag;
 
 @end
 

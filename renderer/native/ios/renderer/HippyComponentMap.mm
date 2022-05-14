@@ -22,8 +22,12 @@
 
 #import "HippyComponentMap.h"
 
+using RootNode = hippy::RootNode;
+
 @interface HippyComponentMap () {
     NSMutableDictionary<NSNumber *, NSMutableDictionary<NSNumber *, id<HippyComponent>> *> *_componentsMap;
+    NSMutableDictionary<NSNumber *, id<HippyComponent>> *_rootComponentsMap;
+    std::unordered_map<int32_t, std::weak_ptr<RootNode>> _rootNodesMap;
 }
 
 @end
@@ -34,50 +38,76 @@
     self = [super init];
     if (self) {
         _componentsMap = [NSMutableDictionary dictionaryWithCapacity:256];
+        _rootNodesMap.reserve(8);
     }
     return self;
 }
 
-- (void)addRootViewTag:(NSNumber *)tag {
-    NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
-    if (tag && ![_componentsMap objectForKey:tag]) {
+- (void)addRootComponent:(id<HippyComponent>)component
+                rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+                  forTag:(NSNumber *)tag {
+    NSAssert(component && tag, @"component &&tag must not be null in method %@", NSStringFromSelector(_cmd));
+    if (component && tag && ![_componentsMap objectForKey:tag]) {
         NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:256];
         [_componentsMap setObject:dic forKey:tag];
+        [_rootComponentsMap setObject:component forKey:tag];
+        _rootNodesMap[[tag intValue]] = rootNode;
     }
 }
 
-- (void)removeRootViewTag:(NSNumber *)tag {
+- (void)removeRootComponentWithTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     [_componentsMap removeObjectForKey:tag];
+    [_rootComponentsMap removeObjectForKey:tag];
+    _rootNodesMap.erase([tag intValue]);
 }
 
-- (void)addComponent:(__kindof id<HippyComponent>)component forRootViewTag:(NSNumber *)tag {
+- (BOOL)containRootComponentWithTag:(NSNumber *)tag {
+    NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
+    id rootComponent = [self rootComponentForTag:tag];
+    return nil != rootComponent;
+}
+
+- (__kindof id<HippyComponent>)rootComponentForTag:(NSNumber *)tag {
+    NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
+    return [_rootComponentsMap objectForKey:tag];
+}
+
+- (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag {
+    return _rootNodesMap[[tag intValue]];
+}
+
+- (void)addComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag {
     NSAssert(tag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
+    NSAssert([self containRootComponentWithTag:tag], @"no root component for tag:%@", tag);
+    NSAssert([component hippyTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map setObject:component forKey:[component hippyTag]];
     }
 }
 
-- (void)removeComponent:(__kindof id<HippyComponent>)component forRootViewTag:(NSNumber *)tag {
+- (void)removeComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag {
     NSAssert(tag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
+    NSAssert([component hippyTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
         [map removeObjectForKey:[component hippyTag]];
     }
 }
 
-- (NSArray<__kindof id<HippyComponent>> *)componentsForRootViewTag:(NSNumber *)tag {
+- (NSDictionary<NSNumber * ,__kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     if (tag) {
         id map = [_componentsMap objectForKey:tag];
-        return [map allValues];
+        return [map copy];
     }
     return nil;
 }
 
-- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag onRootViewTag:(NSNumber *)tag {
-    NSAssert(tag, @"componentTag && tag must not be null in method %@", NSStringFromSelector(_cmd));
+- (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag
+                                     onRootTag:(NSNumber *)tag {
+    NSAssert(componentTag && tag, @"componentTag && tag must not be null in method %@", NSStringFromSelector(_cmd));
     if (componentTag && tag) {
         id map = [_componentsMap objectForKey:tag];
         return [map objectForKey:componentTag];

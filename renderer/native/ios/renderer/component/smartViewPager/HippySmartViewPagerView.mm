@@ -341,7 +341,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:adjustIndexPath];
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag
+                                                       onRootTag:cellShadowView.rootTag];
     if (!cellView) {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }
@@ -368,7 +369,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
     //TODO use reusable view here
-    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
     if (!view) {
         view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }

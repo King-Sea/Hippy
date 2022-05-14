@@ -43,21 +43,21 @@ NativeRenderManager::NativeRenderManager() {
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
-        [uiManager_ createRenderNodes:std::move(nodes)];
+        [uiManager_ createRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        [uiManager_ updateRenderNodes:std::move(nodes)];
+        [uiManager_ updateRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        [uiManager_ deleteRenderNodesIds:std::move(nodes)];
+        [uiManager_ deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
     }
 }
 
@@ -80,7 +80,7 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
             DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
             nodes_infos.push_back(nodeUpdateInfo);
         }
-        [uiManager_ updateNodesLayout:nodes_infos];
+        [uiManager_ updateNodesLayout:nodes_infos onRootNode:root_node];
     }
 }
 
@@ -89,13 +89,13 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                       int32_t pid,
                                       int32_t id) {
     @autoreleasepool {
-        [uiManager_ renderMoveViews:std::move(ids) fromContainer:pid toContainer:id];
+        [uiManager_ renderMoveViews:std::move(ids) fromContainer:pid toContainer:id onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
     @autoreleasepool {
-        [uiManager_ batch];
+        [uiManager_ batchOnRootNode:root_node];
     }
 }
 
@@ -110,7 +110,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
         auto node = dom_node.lock();
         if (node) {
             int32_t tag = node->GetId();
-            [uiManager_ addEventName:name forDomNodeId:tag];
+            [uiManager_ addEventName:name forDomNodeId:tag onRootNode:root_node];
         }
     }
 };
@@ -122,7 +122,7 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
         auto node = dom_node.lock();
         if (node) {
             int32_t node_id = node->GetId();
-            [uiManager_ removeEventName:name forDomNodeId:node_id];
+            [uiManager_ removeEventName:name forDomNodeId:node_id onRootNode:root_node];
         }
     }
 }
@@ -137,16 +137,16 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
             DomValue dom_value;
             param.ToObject(dom_value);
             [uiManager_ dispatchFunction:name viewName:node->GetViewName()
-                                 viewTag:node->GetId() params:dom_value
+                                 viewTag:node->GetId() onRootNode:root_node params:dom_value
                                 callback:node->GetCallback(name, cb)];
         }
         EndBatch(root_node);
     }
 }
 
-void NativeRenderManager::RegisterRootView(UIView *view) {
+void NativeRenderManager::RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
-        [uiManager_ registerRootView:view];
+        [uiManager_ registerRootView:view asRootNode:root_node];
     }
 }
 
@@ -166,16 +166,6 @@ id<HippyFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
 
 void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
     uiManager_.uiCreationLazilyEnabled = enabled;
-}
-
-UIView *NativeRenderManager::CreateViewHierarchyFromDomNode(std::shared_ptr<DomNode> dom_node) {
-    return CreateViewHierarchyFromId(dom_node->GetId());
-}
-
-UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
-    @autoreleasepool {
-        return [uiManager_ createViewRecursivelyFromHippyTag:@(id)];
-    }
 }
 
 id<HippyRenderContext> NativeRenderManager::GetRenderContext() {

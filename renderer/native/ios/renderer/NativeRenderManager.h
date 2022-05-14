@@ -130,7 +130,7 @@ public:
                       const DomArgument& param,
                       uint32_t cb) override;
     
-    void RegisterRootView(UIView *view);
+    void RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node);
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
     
@@ -139,11 +139,7 @@ public:
     id<HippyFrameworkProxy> GetFrameworkProxy();
     
     void SetUICreationLazilyEnabled(bool enabled);
-    
-    UIView *CreateViewHierarchyFromDomNode(std::shared_ptr<hippy::DomNode> dom_node);
-    
-    UIView *CreateViewHierarchyFromId(int32_t id);
-    
+            
     id<HippyRenderContext> GetRenderContext();
     
     void RegisterVSyncSignal(std::function<void ()> vsync_callback, const std::string &key);

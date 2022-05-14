@@ -171,7 +171,7 @@
         NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
         [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag onRootTag:param.rootTag];
                 [view.layer pauseLayerAnimation];
             }];
         }];
@@ -188,7 +188,7 @@
         NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
         [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag onRootTag:param.rootTag];
                 [view.layer resumeLayerAnimation];
             }];
         }];
@@ -198,8 +198,10 @@
 - (void)paramForAnimationId:(NSNumber *)animationId {
     NSArray<HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
     NSMutableArray<NSNumber *> *hippyTags = [NSMutableArray new];
+    NSMutableArray<NSNumber *> *rootTags = [NSMutableArray new];
     [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams *_Nonnull param, NSUInteger __unused idx, BOOL *_Nonnull __unused stop) {
         [hippyTags addObject:param.hippyTag];
+        [rootTags addObject:param.rootTag];
     }];
 
     if (!hippyTags.count) {
@@ -208,8 +210,11 @@
 
     __weak HippyAnimator *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
+        __block NSUInteger index = 0;
         [hippyTags enumerateObjectsUsingBlock:^(NSNumber *_Nonnull tag, __unused NSUInteger idx, __unused BOOL *stop) {
-            UIView *view = [self.renderContext viewFromRenderViewTag:tag];
+            NSNumber *rootTag = [rootTags objectAtIndex:index];
+            index++;
+            UIView *view = [self.renderContext viewFromRenderViewTag:tag onRootTag:rootTag];
             if (!view) {
                 return;
             }
@@ -232,10 +237,21 @@
                 }];
             }];
             [self.renderContext executeBlockOnRenderQueue:^{
+                NSMutableArray<NSNumber *> *rootTags = [NSMutableArray arrayWithCapacity:8];
                 for (HippyAnimationViewParams *param in params) {
-                    [self.renderContext updateView:param.hippyTag props:param.updateParams];
+                    NSNumber *rootTag = param.rootTag;
+                    NSAssert(rootTag, @"HippyAnimationViewParams should contain a root tag");
+                    if (!rootTag) {
+                        continue;
+                    }
+                    [self.renderContext updateView:param.hippyTag onRootTag:rootTag props:param.updateParams];
+                    if (rootTag && ![rootTags containsObject:rootTag]) {
+                        [rootTags addObject:rootTag];
+                    }
                 }
-                [self.renderContext setNeedsLayout];
+                for (NSNumber *rootTag in rootTags) {
+                    [self.renderContext setNeedsLayoutForRootNodeTag:rootTag];
+                }
             }];
         }];
     });
@@ -265,10 +281,21 @@
         }];
     }];
     [self.renderContext executeBlockOnRenderQueue:^{
+        NSMutableArray<NSNumber *> *rootTags = [NSMutableArray arrayWithCapacity:8];
         for (HippyAnimationViewParams *param in params) {
-            [self.renderContext updateView:param.hippyTag props:param.updateParams];
+            NSNumber *rootTag = param.rootTag;
+            NSAssert(rootTag, @"HippyAnimationViewParams should contain a root tag");
+            if (!rootTag) {
+                continue;
+            }
+            [self.renderContext updateView:param.hippyTag onRootTag:rootTag props:param.updateParams];
+            if (rootTag && ![rootTags containsObject:rootTag]) {
+                [rootTags addObject:rootTag];
+            }
         }
-        [self.renderContext setNeedsLayout];
+        for (NSNumber *rootTag in rootTags) {
+            [self.renderContext setNeedsLayoutForRootNodeTag:rootTag];
+        }
     }];
 }
 
@@ -284,7 +311,7 @@
         NSMutableArray <HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
         [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag onRootTag:param.rootTag];
                 [view.layer removeAnimationForKey: [NSString stringWithFormat: @"%@", animationId]];
             }];
         }];
@@ -322,8 +349,17 @@
     }];
 
     [self.renderContext executeBlockOnRenderQueue:^{
+        NSMutableArray<NSNumber *> *rootTags = [NSMutableArray arrayWithCapacity:8];
         for (HippyAnimationViewParams *param in params) {
-            [self.renderContext updateView:param.hippyTag props:param.updateParams];
+            NSNumber *rootTag = param.rootTag;
+            NSAssert(rootTag, @"HippyAnimationViewParams should contain a root tag");
+            if (!rootTag) {
+                continue;
+            }
+            [self.renderContext updateView:param.hippyTag onRootTag:rootTag props:param.updateParams];
+            if (rootTag && ![rootTags containsObject:rootTag]) {
+                [rootTags addObject:rootTag];
+            }
         }
         [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [viewRegistry objectForKey:viewId];
@@ -336,7 +372,9 @@
                 viewLayer.position = expectedPosition;
             }
         }];
-        [self.renderContext setNeedsLayout];
+        for (NSNumber *rootTag in rootTags) {
+            [self.renderContext setNeedsLayoutForRootNodeTag:rootTag];
+        }
     }];
     NSNumber *animationSetId = [anim valueForKey:@"animationParentID"];
     if (animationSetId) {

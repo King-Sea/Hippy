@@ -269,7 +269,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (weakSelf) {
                     HippyShadowView *strongSelf = weakSelf;
                     int32_t hippyTag = [[strongSelf hippyTag] intValue];
-                    auto domNode = domManager->GetNode(hippyTag);
+                    auto domNode = domManager->GetNode(strongSelf.rootNode, hippyTag);
                     if (domNode) {
                         auto layoutNode = domNode->GetLayoutNode();
                         layoutNode->MarkDirty();
@@ -370,7 +370,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             auto domManager = [child domManager].lock();
             if (domManager) {
                 int32_t hippyTag = [child.hippyTag intValue];
-                auto domNode = domManager->GetNode(hippyTag);
+                auto domNode = domManager->GetNode(child.rootNode, hippyTag);
                 if (domNode) {
                     domNode->DoLayout();
                     width = domNode->GetLayoutResult().width;
@@ -704,7 +704,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
         int32_t hippyTag = [self.hippyTag intValue];
-        auto node = shared_domNode->GetNode(hippyTag);
+        auto node = shared_domNode->GetNode(self.rootNode, hippyTag);
         if (node) {
             __weak HippyShadowText *weakSelf = self;
             hippy::MeasureFunction measureFunc =

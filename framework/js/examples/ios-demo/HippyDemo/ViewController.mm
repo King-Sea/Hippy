@@ -42,6 +42,7 @@
 @interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+    std::shared_ptr<hippy::RootNode> _rootNode;
     HippyBridge *_bridge;
 }
 
@@ -129,23 +130,24 @@
     auto nodesData = [self mockNodesData];
     
     //5.create dom nodes with datas
-    _domManager->CreateDomNodes(std::move(nodesData));
+    _domManager->CreateDomNodes(_rootNode, std::move(nodesData));
     
     //6.end batch
-    _domManager->EndBatch();
+    _domManager->EndBatch(_rootNode);
 }
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
     int hippyTag = [[rootView hippyTag] intValue];
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
+        _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
         _domManager = std::make_shared<hippy::DomManager>(hippyTag);
         _domManager->StartTaskRunner();
-        _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+        _domManager->SetRootSize(_rootNode, CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
 
         _nativeRenderManager = std::make_shared<NativeRenderManager>();
         _nativeRenderManager->SetFrameworkProxy(self);
-        _nativeRenderManager->RegisterRootView(rootView);
+        _nativeRenderManager->RegisterRootView(rootView, _rootNode);
         _nativeRenderManager->SetDomManager(_domManager);
         
         _domManager->SetRenderManager(_nativeRenderManager);
