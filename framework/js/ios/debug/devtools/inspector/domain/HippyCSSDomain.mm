@@ -104,12 +104,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
-        [self->_cssModel matchedStyleJSONWithNode:node completion:^(NSDictionary * rspObject) {
-            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
-        }];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
+//        [self->_cssModel matchedStyleJSONWithNode:node completion:^(NSDictionary * rspObject) {
+//            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+//        }];
+//    });
     return YES;
 }
 
@@ -131,12 +131,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
-        [self->_cssModel computedStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
-            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
-        }];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
+//        [self->_cssModel computedStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
+//            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+//        }];
+//    });
     return YES;
 }
 
@@ -158,12 +158,12 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
-        [self->_cssModel inlineStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
-            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
-        }];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
+//        [self->_cssModel inlineStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
+//            [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+//        }];
+//    });
     return YES;
 }
 

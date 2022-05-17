@@ -95,31 +95,31 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         completion(@{});
         return NO;
     }
-    HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
-    if (!rootNode) {
-        HippyLogWarn(@"DOM Model, getDocument error, root node is nil");
-        completion(@{});
-        return NO;
-    }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.backendIdMap removeAllObjects];
-        NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
-        rootDic[HippyDOMKeyNodeId] = @(HippyDOMDefaultDocumentNodeId);
-        rootDic[HippyDOMKeyBackendNodeId] = @(HippyDOMDefaultDocumentNodeId);
-        rootDic[HippyDOMKeyNodeType] = @(HippyDOMNodeTypeDocumentFragmentNode);
-        rootDic[HippyDOMKeyChildNodeCount] = @(HippyDOMDefaultDocumentChildNodeCount);
-        rootDic[HippyDOMKeyBaseURL] = @"";
-        rootDic[HippyDOMKeyDocumentURL] = @"";
-        NSMutableArray *children = [NSMutableArray array];
-        for (HippyShadowView *childNode in rootNode.hippySubviews) {
-            [children addObject:[self nodeJSONWithVirtualNode:childNode nodeType:HippyDOMNodeTypeElementNode]];
-        }
-        
-        rootDic[HippyDOMKeyChildren] = children;
-        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-        resultDic[HippyDOMKeyRoot] = rootDic;
-        completion(resultDic);
-    });
+//    HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
+//    if (!rootNode) {
+//        HippyLogWarn(@"DOM Model, getDocument error, root node is nil");
+//        completion(@{});
+//        return NO;
+//    }
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self.backendIdMap removeAllObjects];
+//        NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
+//        rootDic[HippyDOMKeyNodeId] = @(HippyDOMDefaultDocumentNodeId);
+//        rootDic[HippyDOMKeyBackendNodeId] = @(HippyDOMDefaultDocumentNodeId);
+//        rootDic[HippyDOMKeyNodeType] = @(HippyDOMNodeTypeDocumentFragmentNode);
+//        rootDic[HippyDOMKeyChildNodeCount] = @(HippyDOMDefaultDocumentChildNodeCount);
+//        rootDic[HippyDOMKeyBaseURL] = @"";
+//        rootDic[HippyDOMKeyDocumentURL] = @"";
+//        NSMutableArray *children = [NSMutableArray array];
+//        for (HippyShadowView *childNode in rootNode.hippySubviews) {
+//            [children addObject:[self nodeJSONWithVirtualNode:childNode nodeType:HippyDOMNodeTypeElementNode]];
+//        }
+//
+//        rootDic[HippyDOMKeyChildren] = children;
+//        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+//        resultDic[HippyDOMKeyRoot] = rootDic;
+//        completion(resultDic);
+//    });
     return YES;
 }
 
@@ -165,26 +165,26 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
-        if (!rootNode) {
-            HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
-            completion(@{});
-            return;
-        }
-        HippyShadowView *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
-                                                                           node:rootNode
-                                                                        manager:manager];
-        if (!hitNode) {
-            completion(@{});
-            return;
-        }
-        resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
-        resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
-        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
-        completion(resultDic);
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+//        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
+//        if (!rootNode) {
+//            HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
+//            completion(@{});
+//            return;
+//        }
+//        HippyShadowView *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+//                                                                           node:rootNode
+//                                                                        manager:manager];
+//        if (!hitNode) {
+//            completion(@{});
+//            return;
+//        }
+//        resultDic[HippyDOMKeyBackendId] = hitNode.hippyTag;
+//        resultDic[HippyDOMKeyFrameId] = HippyDOMDefaultFrameID;
+//        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
+//        completion(resultDic);
+//    });
     return YES;
 }
 
@@ -200,23 +200,23 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         completion(@{});
         return NO;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
-        if (!rootNode) {
-            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, root node is nil");
-            completion(@{});
-            return;
-        }
-        HippyShadowView *hitNode = [self nodeForPath:path rootNode:rootNode];
-        if (!hitNode) {
-            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, hitNode is nil");
-            completion(@{});
-            return;
-        }
-        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
-        completion(resultDic);
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
+//        if (!rootNode) {
+//            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, root node is nil");
+//            completion(@{});
+//            return;
+//        }
+//        HippyShadowView *hitNode = [self nodeForPath:path rootNode:rootNode];
+//        if (!hitNode) {
+//            HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, hitNode is nil");
+//            completion(@{});
+//            return;
+//        }
+//        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+//        resultDic[HippyDOMKeyNodeId] = hitNode.hippyTag;
+//        completion(resultDic);
+//    });
     return YES;
 }
 
@@ -503,20 +503,20 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         HippyLogWarn(@"DOM Model, windowFrameWithNode, manager is nil");
         return CGRectZero;
     }
-    UIView *selfView = [manager viewForHippyTag:node.hippyTag];
-    if (!selfView) {
-        return CGRectZero;
-    }
-    UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
-    CGRect nodeLocation = [selfView.superview convertRect:selfView.frame toView:window];
-    UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
-    if (rootView) {
-        CGRect rootLocation = [rootView.superview convertRect:rootView.frame toView:window];
-        nodeLocation = CGRectMake(nodeLocation.origin.x - rootLocation.origin.x,
-                                  nodeLocation.origin.y - rootLocation.origin.y,
-                                  nodeLocation.size.width, nodeLocation.size.height);
-    }
-    return nodeLocation;
+//    UIView *selfView = [manager viewForHippyTag:node.hippyTag];
+//    if (!selfView) {
+//        return CGRectZero;
+//    }
+//    UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
+//    CGRect nodeLocation = [selfView.superview convertRect:selfView.frame toView:window];
+//    UIView *rootView = [manager viewForHippyTag:[manager rootHippyTag]];
+//    if (rootView) {
+//        CGRect rootLocation = [rootView.superview convertRect:rootView.frame toView:window];
+//        nodeLocation = CGRectMake(nodeLocation.origin.x - rootLocation.origin.x,
+//                                  nodeLocation.origin.y - rootLocation.origin.y,
+//                                  nodeLocation.size.width, nodeLocation.size.height);
+//    }
+    return CGRectZero;
 }
 
 - (HippyShadowView *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
