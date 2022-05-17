@@ -165,8 +165,9 @@ jint CreateAnimationManager(JNIEnv* j_env,
                             jint j_dom_id) {
   TDF_BASE_DCHECK(j_dom_id <= std::numeric_limits<std::int32_t>::max());
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(j_dom_id);
+  //todo(omegaxiao) : 创建animationManager传入rootNode(ios/android)
   std::shared_ptr<AnimationManager> ani_manager =
-      std::make_shared<AnimationManager>(dom_manager);
+      std::make_shared<AnimationManager>(dom_manager, nullptr);
   AnimationManager::Insert(ani_manager);
   dom_manager->AddInterceptor(ani_manager);
   return ani_manager->GetId();
