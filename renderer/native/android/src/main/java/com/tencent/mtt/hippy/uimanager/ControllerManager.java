@@ -475,18 +475,18 @@ public class ControllerManager {
         mRenderer.handleRenderException(exception);
     }
 
-    public void removeViewFromRegistry(int id) {
-        View view = mControllerRegistry.getView(id);
+    public void removeViewFromRegistry(int rootId, int id) {
+        View view = mControllerRegistry.getView(rootId, id);
         if (view instanceof ViewGroup) {
             for (int i = ((ViewGroup) view).getChildCount() - 1; i >= 0; i--) {
                 View child = ((ViewGroup) view).getChildAt(i);
                 if (child != null) {
-                    removeViewFromRegistry(child.getId());
+                    removeViewFromRegistry(rootId, child.getId());
                 }
             }
         }
         if (view != null) {
-            mControllerRegistry.removeView(view.getId());
+            mControllerRegistry.removeView(rootId, view.getId());
         }
     }
 }

@@ -212,15 +212,15 @@ public class RenderManager {
         if (node == null) {
             return;
         }
+        int childCount = node.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            deleteSelfFromParent(rootId, node.getChildAt(0));
+        }
         if (node.mParent != null) {
             node.mParent.removeChild(node);
         }
         removeRenderNode(rootId, node.getId());
         node.setNodeFlag(FLAG_ALREADY_DELETED);
-        int childCount = node.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            deleteSelfFromParent(rootId, node.getChildAt(i));
-        }
     }
 
     private void removeRenderNode(int rootId, int nodeId) {
