@@ -48,7 +48,6 @@ using TryCatch = hippy::napi::TryCatch;
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
-constexpr char kHippyModuleName[] = "name";
 constexpr uint64_t kInvalidListenerId = 0;
 
 Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)

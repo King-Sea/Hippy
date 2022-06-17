@@ -17,6 +17,7 @@ class RootNode : public DomNode {
     return dom_manager_;
   }
   inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
+    animation_manager_->SetRootNode(GetWeakSelf());
     dom_manager_ = dom_manager;
   }
   inline std::shared_ptr<AnimationManager> GetAnimationManager() { return animation_manager_; }
@@ -44,7 +45,7 @@ class RootNode : public DomNode {
   void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
   void AddEvent(uint32_t id, const std::string& event_name);
   void RemoveEvent(uint32_t id, const std::string& event_name);
-  void HandleEvent(const std::shared_ptr<DomEvent> &event);
+  void HandleEvent(const std::shared_ptr<DomEvent> &event) override;
   void UpdateRenderNode(const std::shared_ptr<DomNode> &node);
 
   std::shared_ptr<DomNode> GetNode(uint32_t id);

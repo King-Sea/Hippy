@@ -296,10 +296,6 @@ void Animation::Destroy() {
     if (!on_cancel) {
       return;
     }
-    auto root_node = animation_manager->GetRootNode().lock();
-    if (!root_node) {
-      return;
-    }
     auto task_runner = root_node->GetDelegateTaskRunner().lock();
     if (!task_runner) {
       return;

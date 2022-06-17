@@ -35,6 +35,7 @@
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
+#include "bridge/root_node_repo.h"
 #include "core/base/string_view_utils.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
@@ -159,8 +160,7 @@ void DoBind(JNIEnv* j_env,
   std::shared_ptr<NativeRenderManager>
       render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
   float density = render_manager->GetDensity();
-  // todo get rootNode
-  auto root_node = std::make_shared<hippy::RootNode>();
+  auto root_node = scope->GetRootNode().lock();
   auto layout_node = root_node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
 #else
@@ -185,21 +185,30 @@ void AddRoot(JNIEnv* j_env,
             __unused jobject j_obj,
              jint j_dom_id,
              jint j_root_id) {
-
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto root_node = std::make_shared<hippy::RootNode>(j_root_id);
+  root_node->SetDomManager(dom_manager);
+  RootNodeRepo::Insert(root_node);
 }
 
 void RemoveRoot(JNIEnv* j_env,
              __unused jobject j_obj,
              jint j_dom_id,
              jint j_root_id) {
-
+  RootNodeRepo::Erase(static_cast<uint32_t>(j_root_id));
 }
 
 void DoConnect(JNIEnv* j_env,
                 __unused jobject j_obj,
                jint j_runtime_id,
                jint j_root_id) {
-
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_runtime_id));
+  auto root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (runtime && root_node) {
+    auto scope = runtime->GetScope();
+    root_node->SetDelegateTaskRunner(scope->GetTaskRunner());
+    scope->SetRootNode(root_node);
+  }
 }
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
@@ -211,9 +220,6 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
     if (!dom_manager) {
       return;
     }
-    // todo get rootNode
-    auto root_node = std::make_shared<hippy::RootNode>();
-    root_node->SetDomManager(weak_dom_manager);
   }}));
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();

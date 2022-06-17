@@ -321,7 +321,7 @@ void AnimationManager::UpdateAnimation() {
 
   auto now = hippy::base::MonotonicallyIncreasingTime();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
-  for (auto i = 0; i < active_animations_.size(); ++i) {
+  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < active_animations_.size(); ++i) {
     auto animation = active_animations_[i];
     auto animation_id = animation->GetId();
     auto parent_id = animation->GetParentId();
