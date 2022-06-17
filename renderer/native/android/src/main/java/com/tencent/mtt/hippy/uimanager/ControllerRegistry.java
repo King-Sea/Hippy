@@ -71,6 +71,9 @@ public class ControllerRegistry {
 
     @Nullable
     public View getView(int rootId, int id) {
+        if (rootId == id) {
+            return getRootView(rootId);
+        }
         SparseArray<View> views = mViews.get(rootId);
         if (views != null) {
             return views.get(id);
