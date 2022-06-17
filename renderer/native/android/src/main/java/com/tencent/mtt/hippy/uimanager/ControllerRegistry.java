@@ -122,7 +122,7 @@ public class ControllerRegistry {
         removeView(rootId, view.getId());
     }
 
-    public void addRootView(@NonNull ViewGroup rootView) {
+    public void addRootView(@NonNull View rootView) {
         mRootViews.put(rootView.getId(), rootView);
     }
 

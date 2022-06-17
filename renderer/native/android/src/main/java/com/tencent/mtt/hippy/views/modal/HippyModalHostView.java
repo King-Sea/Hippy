@@ -93,7 +93,7 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     @Override
-    public void onInstanceLoad() {
+    public void onInstanceLoad(int rootId) {
         showOrUpdate();
     }
 
@@ -108,7 +108,7 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     @Override
-    public void onInstanceDestroy() {
+    public void onInstanceDestroy(int rootId) {
         if (mNativeRenderer != null) {
             mNativeRenderer.removeInstanceLifecycleEventListener(this);
         }

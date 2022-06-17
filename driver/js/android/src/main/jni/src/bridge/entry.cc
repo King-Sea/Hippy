@@ -87,13 +87,23 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              DoBind)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
-             "updateAnimationNode",
-             "(I[BII)V",
-             UpdateAnimationNode)
+             "addRoot",
+             "(II)V",
+             AddRoot)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "removeRoot",
+             "(II)V",
+             RemoveRoot)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "doConnect",
+             "(II)V",
+             DoConnect)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
-             "(I)I",
+             "I",
              CreateDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -171,8 +181,28 @@ void DoBind(JNIEnv* j_env,
 #endif
 }
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
-  TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
+void AddRoot(JNIEnv* j_env,
+            __unused jobject j_obj,
+             jint j_dom_id,
+             jint j_root_id) {
+
+}
+
+void RemoveRoot(JNIEnv* j_env,
+             __unused jobject j_obj,
+             jint j_dom_id,
+             jint j_root_id) {
+
+}
+
+void DoConnect(JNIEnv* j_env,
+                __unused jobject j_obj,
+               jint j_runtime_id,
+               jint j_root_id) {
+
+}
+
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
   auto dom_manager = std::make_shared<DomManager>();
   dom_manager->Init();
   std::weak_ptr<DomManager> weak_dom_manager = dom_manager;

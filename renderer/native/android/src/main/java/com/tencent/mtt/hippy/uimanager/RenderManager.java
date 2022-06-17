@@ -62,8 +62,13 @@ public class RenderManager {
         return mControllerManager;
     }
 
-    public void addRootView(ViewGroup rootView) {
+    public void addRootView(View rootView) {
         mControllerManager.addRootView(rootView);
+    }
+
+    @Nullable
+    public View getRootView(int rootId) {
+        return mControllerManager.getRootView(rootId);
     }
 
     public void createRootNode(int id) {

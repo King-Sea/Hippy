@@ -211,8 +211,13 @@ public class ControllerManager {
         }
     }
 
-    public void addRootView(ViewGroup rootView) {
+    public void addRootView(View rootView) {
         mControllerRegistry.addRootView(rootView);
+    }
+
+    @Nullable
+    public View getRootView(int rootId) {
+        return mControllerRegistry.getRootView(rootId);
     }
 
     public void updateExtra(int rootId, int id, String name, @Nullable Object extra) {

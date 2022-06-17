@@ -23,6 +23,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_Q
 import android.content.Context;
 import android.text.Layout;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -75,9 +76,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_HEIGHT = "height";
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
     private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
-    private int mRootId;
-    @Nullable
-    private HippyRootView mRootView;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
     @Nullable
@@ -105,9 +103,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
         mRenderManager.init(controllers);
         if (rootView instanceof HippyRootView) {
-            mRenderManager.createRootNode(mRootId);
+            mRenderManager.createRootNode(rootView.getId());
             mRenderManager.addRootView(rootView);
-            mRootView = (HippyRootView) rootView;
             Context context = rootView.getContext();
             if (context instanceof NativeRenderContext) {
                 // Render provider instance id has changed, should reset instance id
@@ -115,11 +112,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 ((NativeRenderContext) context).setInstanceId(mRenderProvider.getInstanceId());
             }
         }
-    }
-
-    @Override
-    public void setRootId(int rootId) {
-        mRootId = rootId;
     }
 
     @Override
@@ -196,31 +188,43 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
         }
-        mRootView = null;
         mFrameworkProxy = null;
         NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
     }
 
     @Override
     @NonNull
-    public ViewGroup createRootView(@NonNull Context context) {
-        if (mRootView == null) {
-            mRootView = new HippyRootView(context, mRenderProvider.getInstanceId(), mRootId);
-            mRenderManager.createRootNode(mRootId);
-            mRenderManager.addRootView(mRootView);
+    public View createRootView(@NonNull Context context, int rootId) {
+        View rootView = mRenderManager.getRootView(rootId);
+        if (rootView == null) {
+            rootView = new HippyRootView(context, mRenderProvider.getInstanceId(), rootId);
+            mRenderManager.createRootNode(rootId);
+            mRenderManager.addRootView(rootView);
         }
-        return mRootView;
+        return rootView;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public RenderManager getRenderManager() {
         return mRenderManager;
     }
 
     @Override
-    public ViewGroup getRootView() {
-        return mRootView;
+    @Nullable
+    public View getRootView(int rootId) {
+        return mRenderManager.getRootView(rootId);
+    }
+
+    @Override
+    @Nullable
+    public View getRootView(@NonNull View view) {
+        Context context = view.getContext();
+        if (context instanceof NativeRenderContext) {
+            int rootId = ((NativeRenderContext) context).getRootId();
+            return getRootView(rootId);
+        }
+        return null;
     }
 
     @Override
@@ -231,15 +235,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onJSBridgeInitialized() {
+    public void onRuntimeInitialized(final int rootId) {
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mRootView != null) {
-                    final int width = mRootView.getWidth();
-                    final int height = mRootView.getHeight();
+                View rootView = getRootView(rootId);
+                if (rootView != null) {
+                    final int width = rootView.getWidth();
+                    final int height = rootView.getHeight();
                     if (width > 0 && height > 0) {
-                        onSizeChanged(mRootView.getId(), width, height);
+                        onSizeChanged(rootId, width, height);
                     }
                 }
             }
@@ -307,12 +312,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onRootDestroy() {
+    public void onRootDestroy(int rootId) {
         if (mInstanceLifecycleEventListeners != null) {
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
-                listener.onInstanceDestroy();
+                listener.onInstanceDestroy(rootId);
             }
         }
+        NativeRendererManager.removeRootNode(rootId);
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.tencent.renderer;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -39,7 +40,10 @@ public interface NativeRender extends RenderExceptionHandler {
     RenderManager getRenderManager();
 
     @Nullable
-    ViewGroup getRootView();
+    View getRootView(int rootId);
+
+    @Nullable
+    View getRootView(@NonNull View view);
 
     String getBundlePath();
 
