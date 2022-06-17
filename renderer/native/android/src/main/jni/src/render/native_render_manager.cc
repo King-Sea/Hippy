@@ -256,7 +256,7 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "deleteNode", "([I)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "deleteNode", "(I[I)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "deleteNode j_cb_id error";
     return;
@@ -326,7 +326,7 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "([III)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[III)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "moveNode j_cb_id error";
     return;
@@ -392,7 +392,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(IJLjava/lang/String;[B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(IIJLjava/lang/String;[B)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "CallJs j_method_id error";
     return;
@@ -437,7 +437,7 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "([B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "(I[B)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << method << " j_method_id error";
     return;
@@ -460,7 +460,7 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "()V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "(I)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << method << " j_method_id error";
     return;
@@ -484,7 +484,7 @@ void NativeRenderManager::CallNativeMeasureMethod(const int32_t id, const float 
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IFIFI)J");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IIFIFI)J");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "measure j_method_id error";
     return;
