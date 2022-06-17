@@ -887,6 +887,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public View createRootView(@NonNull Context context) {
             if (mLinkHelper != null) {
                 View rootView = mLinkHelper.createRootView(context);
+                mLinkHelper.connect((int) mRuntimeId, rootView.getId());
                 return rootView;
             }
             return null;
