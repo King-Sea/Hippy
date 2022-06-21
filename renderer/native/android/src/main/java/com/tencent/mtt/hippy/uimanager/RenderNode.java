@@ -185,7 +185,8 @@ public class RenderNode {
         return false;
     }
 
-    public void addChild(RenderNode node, int index) {
+    public void addChild(@NonNull RenderNode node, int index) {
+        index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, node);
         node.mParent = this;
     }
