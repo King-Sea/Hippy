@@ -66,7 +66,7 @@ class NativeRenderManager : public RenderManager {
 
   void CallNativeMethod(const std::string& method, uint32_t root_id);
 
-  void CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode, const float height,
+  void CallNativeMeasureMethod(const uint32_t root_id, const int32_t id, const float width, const int32_t width_mode, const float height,
                                const int32_t height_mode, int64_t& result);
 
   struct ListenerOp {

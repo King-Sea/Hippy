@@ -114,6 +114,8 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
+  uint32_t root_id = root->GetId();
+
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -130,12 +132,12 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
       int32_t id =  hippy::base::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
-      MeasureFunction measure_function = [this, id](float width,
+      MeasureFunction measure_function = [this, root_id, id](float width,
           LayoutMeasureMode width_measure_mode, float height,
           LayoutMeasureMode height_measure_mode,
           void* layoutContext) -> LayoutSize {
         int64_t result;
-        this->CallNativeMeasureMethod(id, DpToPx(width), width_measure_mode,
+        this->CallNativeMeasureMethod(root_id, id, DpToPx(width), width_measure_mode,
                                       DpToPx(height), height_measure_mode,
                                       result);
         LayoutSize layout_result;
@@ -472,7 +474,7 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
 
 }
 
-void NativeRenderManager::CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode,
+void NativeRenderManager::CallNativeMeasureMethod(const uint32_t root_id, const int32_t id, const float width, const int32_t width_mode,
                                                  const float height, const int32_t height_mode, int64_t& result) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
@@ -490,7 +492,7 @@ void NativeRenderManager::CallNativeMeasureMethod(const int32_t id, const float 
     return;
   }
 
-  jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, id, width, width_mode, height, height_mode);
+  jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, root_id, id, width, width_mode, height, height_mode);
   JNIEnvironment::ClearJEnvException(j_env);
 
   result = static_cast<int64_t>(measure_result);
